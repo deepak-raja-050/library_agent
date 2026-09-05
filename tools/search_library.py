@@ -3,14 +3,48 @@ import sqlite3
 
 DB_NAME = "library.db"
 
-
 @tool
 def search_library(query: str) -> str:
-    """Search the library database for books by title, author, or category."""
+    """Search the library database for books by title, author, or category.
+    If the user asks for all available books, return every currently available book.
+    """
 
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
+    # Handle request for all available books
+    if query.lower().strip() in [
+        "all available books",
+        "available books",
+        "all books available",
+        "books that are available",
+        "what books are available"
+    ]:
+        cursor.execute("""
+            SELECT id, title, author, category
+            FROM books
+            WHERE available = 1
+        """)
+
+        results = cursor.fetchall()
+        conn.close()
+
+        if not results:
+            return "There are currently no available books."
+
+        output = []
+
+        for book_id, title, author, category in results:
+            output.append(
+                f"ID: {book_id} | "
+                f"Title: {title} | "
+                f"Author: {author} | "
+                f"Category: {category}"
+            )
+
+        return "\n".join(output)
+
+    # Normal search
     search_term = f"%{query}%"
 
     cursor.execute("""
@@ -29,9 +63,7 @@ def search_library(query: str) -> str:
 
     output = []
 
-    for book in results:
-        book_id, title, author, category, available = book
-
+    for book_id, title, author, category, available in results:
         status = "Available" if available else "Not Available"
 
         output.append(

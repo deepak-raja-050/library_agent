@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
+from tools.book_recommendation import book_recommendation
+from tools.book_summary import book_summary
 
 from tools.search_library import search_library
 from tools.availability import check_availability
@@ -36,6 +38,8 @@ tools = [
     borrow_book,
     return_book,
     web_search,
+    book_recommendation,
+    book_summary,
     save_preference,
     get_preferences
 ]
@@ -92,6 +96,12 @@ Never invent library information.
 
 For borrowing and returning, always use the appropriate tool and
 report the actual result.
+Use book_recommendation when the user asks for book recommendations.
+
+Use book_summary when the user asks for a summary or explanation of a book.
+
+If a summary or recommendation is not available from the tool,
+use web_search to find relevant information.
 """
 )
 
